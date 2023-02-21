@@ -4,6 +4,10 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
+//scrollable
+int centerX = 0, centerY = 0, offsetX = 0, offsetY = 0;
+float zoom = 1.5;
+//end scrollable
 
 JSONArray data = new JSONArray(); // initialize data to an empty array
 //JSONArray data;
@@ -17,9 +21,38 @@ float barWidth;
 void setup() {
   size(2500, 600);
   background(255);
+ centerX = 0;
+  centerY = 0; 
+  cursor(HAND);
+  smooth();
+}
+
+
+void mousePressed(){
+  offsetX = mouseX-centerX;
+  offsetY = mouseY-centerY;
+}
+
+
+void keyPressed() {
+  // zoom
+  if (keyCode == UP) zoom += 0.05;
+  if (keyCode == DOWN) zoom -= 0.05; 
+
 }
 
 void draw() {
+
+//scrollable
+  if (mousePressed == true) {
+    centerX = mouseX-offsetX;
+    centerY = mouseY-offsetY;
+  }
+
+  translate(centerX,centerY);
+  scale(zoom);
+
+//end scrollable
 
   //loadDATA
   //15 min resolution
