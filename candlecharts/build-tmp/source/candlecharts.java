@@ -9,6 +9,7 @@ import processing.core.*;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.lang.Long;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -27,10 +28,8 @@ public class candlecharts extends PApplet {
 
 
 
-//scrollable
-int centerX = 0, centerY = 0, offsetX = 0, offsetY = 0;
-float zoom = 1.5f;
-//end scrollable
+
+
 
 JSONArray data = new JSONArray(); // initialize data to an empty array
 //JSONArray data;
@@ -44,38 +43,10 @@ float barWidth;
 public void setup() {
   /* size commented out by preprocessor */;
   background(255);
- centerX = 0;
-  centerY = 0; 
-  cursor(HAND);
-  /* smooth commented out by preprocessor */;
 }
 
-
-public void mousePressed(){
-  offsetX = mouseX-centerX;
-  offsetY = mouseY-centerY;
-}
-
-
-public void keyPressed() {
-  // zoom
-  if (keyCode == UP) zoom += 0.05f;
-  if (keyCode == DOWN) zoom -= 0.05f; 
-
-}
 
 public void draw() {
-
-//scrollable
-  if (mousePressed == true) {
-    centerX = mouseX-offsetX;
-    centerY = mouseY-offsetY;
-  }
-
-  translate(centerX,centerY);
-  scale(zoom);
-
-//end scrollable
 
   //loadDATA
   //15 min resolution
@@ -139,27 +110,30 @@ public void draw() {
   line(margin, margin, margin, height-margin);
   line(margin, height-margin, width-margin, height-margin);
 
-//attempt to convert unix time to normal time
-  //long unixTime = 1645022316; // replace with your Unix time
-  //Date date = new Date(unixTime * 1000L); // Unix time is in seconds, so multiply by 1000 to convert to milliseconds
-  //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // specify the date format you want
-  //String formattedDate = dateFormat.format(date); // format the date
-  //System.out.println(formattedDate); // print the formatted date
+
+  
 
 
   for (int i=0; i<data.size(); i+=10) {
+//attempt to convert unix time to normal time
+
+    long unixTime = Long.valueOf(dates[i]); // replace with your Unix time
+    Date date = new Date(unixTime * 1000L); // Unix time is in seconds, so multiply by 1000 to convert to milliseconds
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // specify the date format you want
+    String formattedDate = dateFormat.format(date); // format the date
+    System.out.println(formattedDate); // print the formatted date
+
     fill(0);
     textSize(8);
 
-    text(dates[i], margin + i*barWidth + barWidth/2, height-margin + 20);
+    text(formattedDate, margin + i*barWidth + barWidth/2, height-margin + 20);
   }
 
   noLoop();
 }
 
 
-  public void settings() { size(2500, 600);
-smooth(); }
+  public void settings() { size(2500, 600); }
 
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "--full-screen", "--bgcolor=#666666", "--stop-color=#cccccc", "candlecharts" };
