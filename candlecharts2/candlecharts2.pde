@@ -4,13 +4,14 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.lang.Long;
+import controlP5.*;
 
 JSONArray data = new JSONArray(); // initialize data to an empty array
 float[] opens, highs, lows, closes;
 float minPrice, maxPrice;
 String[] dates;
 int margin = 50;
-float barWidth;
+//float barWidth;
 String prevDate = "";
 
 //dragging
@@ -18,50 +19,69 @@ float startX, startY; // starting position of the mouse when dragging
 float offsetX = 0; // amount to offset the canvas in x direction
 float offsetY = 0; // amount to offset the canvas in y direction
 boolean dragging = false; // flag to indicate if the user is currently dragging the canvas
+float deltaX = mouseX - startX;
+float deltaY = mouseY - startY;
 //end dragging
+
+//controlP5
+
+
+
+
+ControlP5 cp5;
+
+//int myColorBackground = color(0,0,0);
+
+Knob myKnobA;
+//Knob myKnobB;
+
+
+
+float theValue = 10;
+float barWidth;
+
+void knob(float theValue) {
+  barWidth = theValue;
+  println("a knob event. setting barwidth to "+theValue);
+}
+
 
 
 
 void setup() {
-  //size(2500, 600);
-  fullScreen(2);
+
+  size(1000, 600);
+  //fullScreen(2);
+  
+  stuffs();
+
+
+
+  cp5 = new ControlP5(this);
+
+  myKnobA = cp5.addKnob("knob")
+  .setRange(0,10)
+  .setValue(5)
+  .setPosition(100,70)
+  .setRadius(50)
+  .setDragDirection(Knob.VERTICAL)
+  ;
+
+}
+
+
+
+String url = "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USDT&limit=720&aggregate=4";
+
+void stuffs(){
+
   background(255);
-}
 
-void mousePressed() {
-  // check if the user clicked on the canvas
-  if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-    // store the starting position of the mouse
-    startX = mouseX;
-    startY = mouseY;
-    dragging = true;
-  }
-}
-
-void mouseReleased() {
-  // reset the dragging flag when the mouse is released
-  dragging = false;
-}
-
-void mouseDragged() {
-  if (dragging) {
-    // calculate the amount to offset the canvas based on the change in mouse position
-    float deltaX = mouseX - startX;
-    float deltaY = mouseY - startY;
-    offsetX += deltaX;
-    offsetY += deltaY;
-    // update the starting position of the mouse
-    startX = mouseX;
-    startY = mouseY;
-  }
-}
-
-
-void draw() {
   // Load data
-  String url = "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USDT&limit=720&aggregate=4";
+  
   JSONObject json = loadJSONObject(url);
   JSONArray data = json.getJSONObject("Data").getJSONArray("Data");
+
   opens = new float[data.size()];
   highs = new float[data.size()];
   lows = new float[data.size()];
@@ -76,16 +96,13 @@ void draw() {
     closes[i] = candle.getFloat("close");
     dates[i] = Integer.toString(candle.getInt("time"));
   }
+
   minPrice = min(lows);
   maxPrice = max(highs);
 
-  //dragging canvas
-  translate(offsetX, offsetY);
-  //end dragging canvas
-
   // Draw data
   //float barWidth = (width - 2*margin)/data.size();
-  float barWidth = 10;
+  barWidth = theValue;
   for (int i=0; i<data.size(); i++) {
     stroke(0, 100, 200);
     line(margin + i*barWidth + barWidth/2, map(highs[i], minPrice, maxPrice, height-margin, margin), margin + i*barWidth + barWidth/2, map(lows[i], minPrice, maxPrice, height-margin, margin));
@@ -109,7 +126,7 @@ void draw() {
   Date date = new Date(unixTime * 1000L);
 
   // format date and time
-  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM");
   SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
   String formattedDate = dateFormat.format(date);
   String formattedTime = timeFormat.format(date);
@@ -122,5 +139,49 @@ void draw() {
     prevDate = formattedDate;
   }
 }
-  noLoop();
+
+
+
 }
+
+void draw() {
+
+  //dragging canvas
+  //stuffs();
+
+  
+  //end dragging canvas
+
+  //noLoop();
+}
+
+// int lastX, lastY;
+
+// public void mouseDragged(MouseEvent e) {
+//     int dx = e.getX() - lastX;
+//     int dy = e.getY() - lastY;
+
+//     // Check if the mouse is near the edge of the monitor
+//     if (e.getX() < panThreshold) {
+//         // Panning left
+//         canvas.translate(-panAmount, 0);
+//     } else if (e.getX() > canvas.getWidth() - panThreshold) {
+//         // Panning right
+//         canvas.translate(panAmount, 0);
+//     }
+
+//     if (e.getY() < panThreshold) {
+//         // Panning up
+//         canvas.translate(0, -panAmount);
+//     } else if (e.getY() > canvas.getHeight() - panThreshold) {
+//         // Panning down
+//         canvas.translate(0, panAmount);
+//     }
+
+//     // Update the lastX and lastY variables
+//     lastX = e.getX();
+//     lastY = e.getY();
+
+//     canvas.repaint();
+//}
+
